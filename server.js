@@ -16,17 +16,16 @@ app.post("/upload", upload.single("pdf"), async (req, res) => {
     .split(/\r?\n/)
     .map((l) => l.trim())
     .filter((l) => l);
-  const itemRegex = /^(\d+0)\s+(RED|Equal|Tee|Elbow|Purge|Red)\b(.*)$/i;
-
+  const itemRegex =
+    /(\d+0)\s+(RED|Equal|Tee|Elbow|Purge|Red)([\s\S]*?)(?=\n\d+0\s+(?:RED|Equal|Tee|Elbow|Purge|Red)|$)/gi;
   const rows = [];
-  for (const line of lines) {
-    const match = line.match(itemRegex);
-    if (match) {
-      rows.push({
-        Item: match[1],
-        "Short text": (match[2] + match[3]).trim(),
-      });
-    }
+  const text = lines.join("\n");
+  let match;
+  while ((match = itemRegex.exec(text)) !== null) {
+    rows.push({
+      Item: match[1],
+      "Short text": (match[2] + match[3]).replace(/\s+/g, " ").trim(),
+    });
   }
 
   if (!fs.existsSync("./public")) fs.mkdirSync("./public");
