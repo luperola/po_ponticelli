@@ -1,0 +1,38 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>PO PDF to Excel</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="p-5">
+  <div class="container">
+    <h2 class="mb-4">Estrazione PO PDF in Excel</h2>
+    <form id="uploadForm" enctype="multipart/form-data">
+      <input type="file" name="pdf" class="form-control mb-3" required />
+      <button class="btn btn-primary" type="submit">Carica e Processa</button>
+    </form>
+    <div id="result" class="mt-4"></div>
+  </div>
+  <script>
+    document.getElementById('uploadForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      const res = await fetch('/upload', { method: 'POST', body: formData });
+      if (res.ok) {
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'po_output.xlsx';
+        a.click();
+        URL.revokeObjectURL(url);
+        document.getElementById('result').textContent = '✅ File Excel generato!';
+      } else {
+        document.getElementById('result').textContent = '❌ Errore durante il caricamento.';
+      }
+    });
+  </script>
+</body>
+</html>
